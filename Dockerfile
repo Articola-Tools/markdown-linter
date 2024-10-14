@@ -2,7 +2,7 @@ FROM ruby:3.3.5-alpine3.20
 
 RUN addgroup -S lintergroup && adduser -S linteruser -G lintergroup
 
-RUN gem install mdl
+RUN gem install mdl:0.13.0
 
 COPY ./ /linter_workdir
 
