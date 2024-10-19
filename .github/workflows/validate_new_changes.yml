@@ -80,7 +80,21 @@ jobs:
                   cache-from: "type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
                   cache-to: "type=inline"
 
-            - name: "Run local Markdown linter"
+            - name: "Test correctly formatted Markdown"
+              run: "docker run --rm -v ${{ github.workspace }}/tests/correct_markdown:/linter_workdir/repo
+                    local/markdown-linter-pr:latest"
+
+            - name: "Test incorrectly formatted Markdown"
+              run: "docker run --rm -v ${{ github.workspace }}/tests/incorrect_markdown:/linter_workdir/repo
+                    local/markdown-linter-pr:latest && { echo 'Incorrectly formatted Markdown test must fail!' >&2; exit 1; }
+                    || exit 0"
+
+            # HACK: remove `tests` directory before linting repo directory because there is no way to easily ignore folder
+            # from mdl CLI.
+            - name: "Remove `tests` directory"
+              run: "rm -rf ${{ github.workspace }}/tests"
+
+            - name: "Lint repo directory"
               run: "docker run --rm -v ${{ github.workspace }}:/linter_workdir/repo local/markdown-linter-pr:latest"
 
             - name: "Run Trivy vulnerability scanner"
@@ -167,6 +181,11 @@ jobs:
                   registry: "${{ env.REGISTRY }}"
                   username: "${{ github.actor }}"
                   password: "${{ secrets.GITHUB_TOKEN }}"
+
+            # HACK: remove `tests` directory before linting repo directory because there is no way to easily ignore folder
+            # from mdl CLI.
+            - name: "Remove `tests` directory"
+              run: "rm -rf ${{ github.workspace }}/tests"
 
             - name: "Run Markdown linter"
               run: "docker run --rm -v ${{ github.workspace }}:/linter_workdir/repo
