@@ -1,4 +1,4 @@
-FROM ruby:3.3.5-alpine3.20
+FROM ruby:3.3.6-alpine3.20
 
 RUN addgroup -S lintergroup && adduser -S linteruser -G lintergroup
 
